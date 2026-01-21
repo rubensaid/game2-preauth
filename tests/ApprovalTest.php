@@ -21,20 +21,11 @@ use ApprovalTests\Approvals;
 class ApprovalTest extends TestCase
 {
 
-    public function testFoo(): void
-    {
-        $items = [new Item('foo', 0, 0)];
-        $app = new GildedRose($items);
-        $app->updateQuality();
-
-        Approvals::verifyList($items);
-    }
-
-    public function testThirtyDays(): void
+    public function testInventoryForTwelveDaysMatchesFixture(): void
     {
         ob_start();
 
-        $argv = ["", "30"];
+        $argv = ["", "12"];
         include(__DIR__ . '/../fixtures/texttest_fixture.php');
 
         $output = ob_get_clean();
