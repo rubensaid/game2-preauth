@@ -59,6 +59,28 @@ cd ./GildedRose-Refactoring-Kata/php
 composer install
 ```
 
+## Docker local
+
+Un entorno de desarrollo en Docker está disponible para no depender de PHP o Composer instalados en tu máquina:
+
+```sh
+# desde la carpeta game-02
+docker compose build
+docker compose run --rm app composer install
+```
+
+Ejecutar herramientas dentro del contenedor:
+
+```sh
+docker compose run --rm app composer tests          # PHPUnit
+docker compose run --rm app composer phpstan        # PHPStan
+docker compose run --rm app composer check-cs       # ECS lint
+docker compose run --rm app php fixtures/texttest_fixture.php 10
+docker compose run --rm app bash                    # shell interactiva
+```
+
+Las dependencias se montan como volumen (`composer-cache`) para acelerar instalaciones posteriores y Xdebug está habilitado para generar coberturas.
+
 ## Dependencies
 
 The project uses composer to install:
