@@ -6,6 +6,11 @@ namespace GildedRose;
 
 final class GildedRose
 {
+    private const AGED_BRIE = 'Aged Brie';
+    private const BACKSTAGE = 'Backstage passes to a TAFKAL80ETC concert';
+    private const SULFURAS = 'Sulfuras, Hand of Ragnaros';
+    private const CONJURED = 'Conjured';
+
     /**
      * @param Item[] $items
      */
@@ -17,51 +22,90 @@ final class GildedRose
     public function updateQuality(): void
     {
         foreach ($this->items as $item) {
-            if ($item->name != 'Aged Brie' and $item->name != 'Backstage passes to a TAFKAL80ETC concert') {
-                if ($item->quality > 0) {
-                    if ($item->name != 'Sulfuras, Hand of Ragnaros') {
-                        $item->quality = $item->quality - 1;
-                    }
-                }
-            } else {
-                if ($item->quality < 50) {
-                    $item->quality = $item->quality + 1;
-                    if ($item->name == 'Backstage passes to a TAFKAL80ETC concert') {
-                        if ($item->sellIn < 11) {
-                            if ($item->quality < 50) {
-                                $item->quality = $item->quality + 1;
-                            }
-                        }
-                        if ($item->sellIn < 6) {
-                            if ($item->quality < 50) {
-                                $item->quality = $item->quality + 1;
-                            }
-                        }
-                    }
-                }
+            if ($this->isSulfuras($item)) {
+                continue;
             }
 
-            if ($item->name != 'Sulfuras, Hand of Ragnaros') {
-                $item->sellIn = $item->sellIn - 1;
-            }
-
+            $this->updateBeforeSellDate($item);
+            $item->sellIn--;
             if ($item->sellIn < 0) {
-                if ($item->name != 'Aged Brie') {
-                    if ($item->name != 'Backstage passes to a TAFKAL80ETC concert') {
-                        if ($item->quality > 0) {
-                            if ($item->name != 'Sulfuras, Hand of Ragnaros') {
-                                $item->quality = $item->quality - 1;
-                            }
-                        }
-                    } else {
-                        $item->quality = $item->quality - $item->quality;
-                    }
-                } else {
-                    if ($item->quality < 50) {
-                        $item->quality = $item->quality + 1;
-                    }
-                }
+                $this->updateAfterSellDate($item);
             }
         }
+    }
+
+    private function updateBeforeSellDate(Item $item): void
+    {
+        if ($this->isAgedBrie($item)) {
+            $this->increaseQuality($item);
+
+            return;
+        }
+
+        if ($this->isBackstagePass($item)) {
+            $this->increaseQuality($item);
+            if ($item->sellIn <= 10) {
+                $this->increaseQuality($item);
+            }
+            if ($item->sellIn <= 5) {
+                $this->increaseQuality($item);
+            }
+
+            return;
+        }
+
+        $this->degradeQuality($item, $this->getDegradeRate($item));
+    }
+
+    private function updateAfterSellDate(Item $item): void
+    {
+        if ($this->isAgedBrie($item)) {
+            $this->increaseQuality($item);
+
+            return;
+        }
+
+        if ($this->isBackstagePass($item)) {
+            $item->quality = 0;
+
+            return;
+        }
+
+        $this->degradeQuality($item, $this->getDegradeRate($item));
+    }
+
+    private function getDegradeRate(Item $item): int
+    {
+        return $this->isConjured($item) ? 2 : 1;
+    }
+
+    private function degradeQuality(Item $item, int $amount): void
+    {
+        $item->quality = max(0, $item->quality - $amount);
+    }
+
+    private function increaseQuality(Item $item, int $amount = 1): void
+    {
+        $item->quality = min(50, $item->quality + $amount);
+    }
+
+    private function isAgedBrie(Item $item): bool
+    {
+        return $item->name === self::AGED_BRIE;
+    }
+
+    private function isBackstagePass(Item $item): bool
+    {
+        return $item->name === self::BACKSTAGE;
+    }
+
+    private function isSulfuras(Item $item): bool
+    {
+        return $item->name === self::SULFURAS;
+    }
+
+    private function isConjured(Item $item): bool
+    {
+        return str_contains($item->name, self::CONJURED);
     }
 }
