@@ -8,6 +8,9 @@ use GildedRose\Contracts\ItemUpdater;
 use GildedRose\Contracts\ItemUpdaterResolver;
 use GildedRose\Item;
 
+/**
+ * Selects an updater implementation from a predefined list.
+ */
 final class ItemUpdaterFactory implements ItemUpdaterResolver
 {
     /**
@@ -18,6 +21,11 @@ final class ItemUpdaterFactory implements ItemUpdaterResolver
     ) {
     }
 
+    /**
+     * Return the first updater that supports the given item.
+     *
+     * @throws \RuntimeException when no updater matches; treat this as a composition error.
+     */
     public function for(Item $item): ItemUpdater
     {
         foreach ($this->updaters as $updater) {
