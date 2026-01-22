@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace GildedRose\Factory;
 
 use GildedRose\Contracts\ItemUpdater;
+use GildedRose\Contracts\ItemUpdaterResolver;
 use GildedRose\Item;
 
-final class ItemUpdaterFactory
+final class ItemUpdaterFactory implements ItemUpdaterResolver
 {
     /**
      * @param ItemUpdater[] $updaters

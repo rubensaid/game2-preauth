@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace GildedRose;
 
-use GildedRose\Contracts\ItemUpdater;
-use GildedRose\Factory\ItemUpdaterFactory;
-use GildedRose\Updater\AgedBrieUpdater;
-use GildedRose\Updater\BackstageUpdater;
-use GildedRose\Updater\ConjuredUpdater;
-use GildedRose\Updater\DefaultUpdater;
-use GildedRose\Updater\SulfurasUpdater;
+use GildedRose\Contracts\ItemUpdaterResolver;
+use GildedRose\Factory\ItemUpdaterFactoryBuilder;
 
 final class GildedRose
 {
@@ -19,28 +14,20 @@ final class GildedRose
      */
     public function __construct(
         private array $items,
-        private ?ItemUpdaterFactory $factory = null,
+        private ?ItemUpdaterResolver $resolver = null,
     ) {
-        $this->factory ??= self::defaultFactory();
+        $this->resolver ??= self::defaultResolver();
     }
 
     public function updateQuality(): void
     {
         foreach ($this->items as $item) {
-            $this->factory->for($item)->update($item);
+            $this->resolver->for($item)->update($item);
         }
     }
 
-    private static function defaultFactory(): ItemUpdaterFactory
+    private static function defaultResolver(): ItemUpdaterResolver
     {
-        $updaters = [
-            new SulfurasUpdater(),
-            new BackstageUpdater(),
-            new AgedBrieUpdater(),
-            new ConjuredUpdater(),
-            new DefaultUpdater(),
-        ];
-
-        return new ItemUpdaterFactory($updaters);
+        return ItemUpdaterFactoryBuilder::withDefaults();
     }
 }
