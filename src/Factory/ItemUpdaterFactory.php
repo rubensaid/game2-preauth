@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace GildedRose\Factory;
+
+use GildedRose\Contracts\ItemUpdater;
+use GildedRose\Item;
+
+final class ItemUpdaterFactory
+{
+    /**
+     * @param ItemUpdater[] $updaters
+     */
+    public function __construct(
+        private array $updaters
+    ) {
+    }
+
+    public function for(Item $item): ItemUpdater
+    {
+        foreach ($this->updaters as $updater) {
+            if ($updater->supports($item)) {
+                return $updater;
+            }
+        }
+
+        throw new \RuntimeException("No updater registered for {$item->name}");
+    }
+}
